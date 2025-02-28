@@ -1,6 +1,7 @@
 import javax.swing.JFrame;
 import javax.swing.WindowConstants;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JComboBox;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JTextField;
@@ -10,23 +11,24 @@ import java.awt.event.ActionEvent;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.JScrollPane;
+import java.util.InputMismatchException;
 
 public class FrmCajero extends JFrame {
 
     JComboBox cmbdenominador;
     String[] denominadores = new String[] {"100000", "50000", "20000", "10000", "5000", "2000", "1000", "500", "200", "100", "50"};
     String[] encabezados = new String[] {" Cantidad ", " Formato ", " Denominaciones "};
-    String[] encabezados2 = new String[] {"Cantidades", "Denominaciones"};
+    String[] encabezados2 = new String[] {"Cantidades", "Denominaciones", "Total"};
     String[] formato = new String[] {"Billete", "Moneda"};
     DefaultTableModel dtm;
-    JTextField txtcantidad, txtdevolver;
+    JTextField txtcantidad, txtdevolver, txtresultado;
     JTable tbldevuelta, tblresultado;
     int[] numeradores = new int[] {100000, 50000, 20000, 10000, 5000, 2000, 1000, 500, 200, 100, 50};
     
     
     public FrmCajero() {
     
-        setSize(600, 600);
+        setSize(700, 600);
         setTitle("Caja Registradora");
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setLayout(null);
@@ -74,8 +76,13 @@ public class FrmCajero extends JFrame {
 
         tblresultado = new JTable();
         JScrollPane spresultado = new JScrollPane(tblresultado);
-        spresultado.setBounds(410, 250, 160, 200);
+        spresultado.setBounds(410, 250, 220, 200);
         getContentPane().add(spresultado);
+
+        txtresultado = new JTextField("");
+        txtresultado.setBounds(410, 470, 200, 25);
+        getContentPane().add(txtresultado);
+        txtresultado.setEnabled(false);
 
         String[][] tabla2 = new String[denominadores.length][encabezados2.length];
 
@@ -121,6 +128,7 @@ public class FrmCajero extends JFrame {
 
         for(int i = 0; i < denominadores.length; i++) {
             String seleccion = denominadores[cmbdenominador.getSelectedIndex()];
+
             if(seleccion == denominadores[i]) {
 
                 int seleccionado = Integer.parseInt(seleccion);
@@ -137,6 +145,8 @@ public class FrmCajero extends JFrame {
 
         String[][] strtabla = new String[denominadores.length][encabezados.length];
         int[][] inttabla = new int[denominadores.length][encabezados.length];
+        String[][] strtabla2 = new String[denominadores.length][encabezados2.length];
+        int[][] inttabla2 = new int[denominadores.length][encabezados2.length];
 
         for(int i = 0; i <= totalcantidad; i++) {
 
@@ -164,52 +174,86 @@ public class FrmCajero extends JFrame {
         }
         DefaultTableModel dtm = new DefaultTableModel(strtabla, encabezados);
         tbldevuelta.setModel(dtm);
+
     }
 
 
     private void devueltaDato() {
 
         int devuelta = Integer.parseInt(txtdevolver.getText());
-        int[] devueltacantidad = new int[12];
-        int[] devueltadenominador = new int[12];
-        int sumcantidad = -1;
-        int sumdenom = -1;
+
+        insertarResultado();
+        
+
+    }
+
+
+    private void insertarResultado() {
+
+        int devuelta = Integer.parseInt(txtdevolver.getText());
 
         String[][] strtabla2 = new String[denominadores.length][encabezados2.length];
         int[][] inttabla2 = new int[denominadores.length][encabezados2.length];
+        int total = 0;
+        int[] cantotal = new int[12];
+        int sumatoria = -1;
+        String xtotal = "";
 
-        while(devuelta >= 0) {
+        for(int i = 0; i < totalcantidad; i++) {
 
-            for(int i = 0; i < numeradores.length; i++) {
-                if(devuelta >= numeradores[i]) {
-                    if(devuelta >= 0) {
-                        while(devuelta >= 0) {
-                            if(cantidades[i] > 0) {
-                                sumdenom++;
-                                if(denominador[i] > devuelta) {
-                                    
-                                    denominador[i] *= cantidades[i - 1];
-                                    devueltadenominador[sumdenom] = denominador[i];
-                                    sumcantidad++;
-                                    devueltacantidad[sumcantidad] = cantidades[i];
-                                    cantidades[i]--;
-                                    
-                                    devuelta -= denominador[i];
-
-                                }
-
-
-                            }
-                        }
-                    }
-                }
-            }
-            if(devuelta == 0) {
-                break;
-            }
+            inttabla2[i][0] = cantidades[i];
+            strtabla2[i][0] = String.valueOf(inttabla2[i][0]);
 
         }
 
+        for(int i = 0; i < totaldenominador; i++) {
+
+            inttabla2[i][1] = denominador[i];
+            strtabla2[i][1] = String.valueOf(inttabla2[i][1]);
+            
+        }
+
+        for(int i = 0; i < totaldenominador; i++) {
+
+            inttabla2[i][2] = inttabla2[i][0] * inttabla2[i][1];
+            
+        }
+
+
+
+        for(int i = 0; i < denominadores.length; i++) {
+
+
+            if(inttabla2[i][2] <= devuelta) {
+                while(total <= devuelta) {
+                    total += inttabla2[i][2];
+                    break;
+                }
+                if(total > devuelta) {
+                    while(total > devuelta) {
+                        inttabla2[i][2] = inttabla2[i][2] - inttabla2[i][1];
+                        inttabla2[i][0] -= 1;
+                        total -= inttabla2[i][1];
+                    }
+                }
+
+            }
+
+            strtabla2[i][0] = String.valueOf(inttabla2[i][0]);
+            strtabla2[i][2] = String.valueOf(inttabla2[i][2]);
+
+        }
+
+
+        xtotal = String.valueOf(total);
+        txtresultado.setText(xtotal);
+
+
+        DefaultTableModel dtm2 = new DefaultTableModel(strtabla2, encabezados2);
+        tblresultado.setModel(dtm2);
+
+        
+
     }
-    
+        
 }
