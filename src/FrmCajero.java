@@ -11,7 +11,6 @@ import java.awt.event.ActionEvent;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.JScrollPane;
-import java.util.InputMismatchException;
 
 public class FrmCajero extends JFrame {
 
@@ -20,11 +19,10 @@ public class FrmCajero extends JFrame {
     String[] encabezados = new String[] {" Cantidad ", " Formato ", " Denominaciones "};
     String[] encabezados2 = new String[] {"Cantidades", "Denominaciones", "Total"};
     String[] formato = new String[] {"Billete", "Moneda"};
-    DefaultTableModel dtm;
     JTextField txtcantidad, txtdevolver, txtresultado;
     JTable tbldevuelta, tblresultado;
     int[] numeradores = new int[] {100000, 50000, 20000, 10000, 5000, 2000, 1000, 500, 200, 100, 50};
-    
+
     
     public FrmCajero() {
     
@@ -79,6 +77,10 @@ public class FrmCajero extends JFrame {
         spresultado.setBounds(410, 250, 220, 200);
         getContentPane().add(spresultado);
 
+        JLabel lblresultado = new JLabel("Total devuelto");
+        lblresultado.setBounds(320, 470, 200, 25);
+        getContentPane().add(lblresultado);
+
         txtresultado = new JTextField("");
         txtresultado.setBounds(410, 470, 200, 25);
         getContentPane().add(txtresultado);
@@ -105,9 +107,7 @@ public class FrmCajero extends JFrame {
                     
             }
                 
-        });
-    
-    
+        }); 
     
     
     
@@ -117,8 +117,6 @@ public class FrmCajero extends JFrame {
     private int totalcantidad = -1;
     private int[] denominador = new int[12];
     private int totaldenominador = -1;
-    private String[] formatos = new String[12];
-    private int posformato = -1;
 
     private void agregarDato() {
         
@@ -126,14 +124,15 @@ public class FrmCajero extends JFrame {
         totalcantidad++;
         cantidades[totalcantidad] = cantidad;
 
+        
         for(int i = 0; i < denominadores.length; i++) {
             String seleccion = denominadores[cmbdenominador.getSelectedIndex()];
-
+            
             if(seleccion == denominadores[i]) {
-
                 int seleccionado = Integer.parseInt(seleccion);
                 totaldenominador++;
                 denominador[totaldenominador] = seleccionado;
+
             }
         }
 
@@ -147,34 +146,33 @@ public class FrmCajero extends JFrame {
         int[][] inttabla = new int[denominadores.length][encabezados.length];
         String[][] strtabla2 = new String[denominadores.length][encabezados2.length];
         int[][] inttabla2 = new int[denominadores.length][encabezados2.length];
-
+        
         for(int i = 0; i <= totalcantidad; i++) {
-
+            
             inttabla[i][0] = cantidades[i];
             strtabla[i][0] = String.valueOf(inttabla[i][0]);
-
+    
         }
-
+        
         for(int j = 0; j <= totaldenominador; j++) {
             if(denominador[j] > numeradores[6]) {
-        
-            inttabla[j][2] = denominador[j];
-            strtabla[j][2] = String.valueOf(inttabla[j][2]);
-            strtabla[j][1] = formato[0];
-
+                
+                inttabla[j][2] = denominador[j];
+                strtabla[j][2] = String.valueOf(inttabla[j][2]);
+                strtabla[j][1] = formato[0];
+    
             }
-
+            
             if(denominador[j] <= numeradores[6]) {
-        
+
                 inttabla[j][2] = denominador[j];
                 strtabla[j][2] = String.valueOf(inttabla[j][2]);
                 strtabla[j][1] = formato[1];
-    
-                }
+            }
         }
+        
         DefaultTableModel dtm = new DefaultTableModel(strtabla, encabezados);
         tbldevuelta.setModel(dtm);
-
     }
 
 
@@ -194,26 +192,25 @@ public class FrmCajero extends JFrame {
 
         String[][] strtabla2 = new String[denominadores.length][encabezados2.length];
         int[][] inttabla2 = new int[denominadores.length][encabezados2.length];
+
         int total = 0;
-        int[] cantotal = new int[12];
-        int sumatoria = -1;
         String xtotal = "";
 
-        for(int i = 0; i < totalcantidad; i++) {
+        for(int i = 0; i <= totalcantidad; i++) {
 
             inttabla2[i][0] = cantidades[i];
             strtabla2[i][0] = String.valueOf(inttabla2[i][0]);
 
         }
 
-        for(int i = 0; i < totaldenominador; i++) {
+        for(int i = 0; i <= totaldenominador; i++) {
 
             inttabla2[i][1] = denominador[i];
             strtabla2[i][1] = String.valueOf(inttabla2[i][1]);
             
         }
 
-        for(int i = 0; i < totaldenominador; i++) {
+        for(int i = 0; i < numeradores.length; i++) {
 
             inttabla2[i][2] = inttabla2[i][0] * inttabla2[i][1];
             
@@ -224,7 +221,7 @@ public class FrmCajero extends JFrame {
         for(int i = 0; i < denominadores.length; i++) {
 
 
-            if(inttabla2[i][2] <= devuelta) {
+            if(inttabla2[i][1] <= devuelta) {
                 while(total <= devuelta) {
                     total += inttabla2[i][2];
                     break;
@@ -237,10 +234,11 @@ public class FrmCajero extends JFrame {
                     }
                 }
 
-            }
+                strtabla2[i][0] = String.valueOf(inttabla2[i][0]);
+                strtabla2[i][2] = String.valueOf(inttabla2[i][2]);
 
-            strtabla2[i][0] = String.valueOf(inttabla2[i][0]);
-            strtabla2[i][2] = String.valueOf(inttabla2[i][2]);
+
+            }
 
         }
 
